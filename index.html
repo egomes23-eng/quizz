@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChemLab Quiz Pro - Desafio de Química & Ranking</title>
+
+    <!-- Tailwind CSS CDN para estilização responsiva e moderna -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons para ícones informativos -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Fontes do Google (Inter & JetBrains Mono) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Configuração do Tema Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        chem: {
+                            dark: '#0b132b',
+                            card: '#1c2541',
+                            teal: '#00b4d8',
+                            emerald: '#10b981',
+                            rose: '#f43f5e',
+                            purple: '#7209b7'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background: radial-gradient(circle at top right, #1c2541, #0b132b, #050814);
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+
+        .glow-teal {
+            box-shadow: 0 0 20px rgba(0, 180, 216, 0.25);
+        }
+
+        .glow-purple {
+            box-shadow: 0 0 20px rgba(114, 9, 183, 0.25);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b132b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3a506b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00b4d8;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased flex flex-col justify-between min-h-screen">
+
+    <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            
+            <!-- Logo e Título -->
+            <div class="flex items-center gap-3">
+                <div class="p-2.5 bg-gradient-to-br from-teal-500 to-purple-600 rounded-xl shadow-lg glow-teal">
+                    <i data-lucide="flask-conical" class="w-6 h-6 text-white animate-bounce" style="animation-duration: 3s;"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-teal-400 via-cyan-300 to-purple-400 bg-clip-text text-transparent">
+                        ChemLab Pro
+                    </h1>
+                    <p class="text-xs text-slate-400 font-mono">Quiz Interativo de Química</p>
+                </div>
+            </div>
+
+            <!-- Contador de Acessos & Ações do Cabeçalho -->
+            <div class="flex items-center gap-3">
+                <!-- Badge de Contador de Acessos -->
+                <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs font-mono text-teal-400 shadow-inner">
+                    <i data-lucide="eye" class="w-4 h-4 text-teal-400"></i>
+                    <span>Acessos: <strong id="global-access-counter" class="text-white">0</strong></span>
+                </div>
+
+                <!-- Botão Modal GitHub -->
+                <button onclick="openGitHubModal()" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 transition-all">
+                    <i data-lucide="github" class="w-4 h-4 text-cyan-400"></i>
+                    <span class="hidden sm:inline">Como Publicar</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl w-full mx-auto px-4 py-6 flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- CONTEÚDO PRINCIPAL (TELAS DO QUIZ) - Colunas 1 a 8 -->
+        <div class="lg:col-span-8 w-full">
+
+            <!-- TELA 1: Cadastro do Jogador / Início -->
+            <section id="screen-start" class="bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl animate-fade-in space-y-6">
+                <div class="text-center space-y-3">
+                    <div class="inline-flex p-4 rounded-full bg-teal-950/60 border border-teal-500/30 text-teal-400 mb-1">
+                        <i data-lucide="atom" class="w-10 h-10"></i>
+                    </div>
+                    <h2 class="text-3xl font-extrabold text-white">Desafio de Química Geral & Orgânica</h2>
+                    <p class="text-slate-300 text-sm max-w-xl mx-auto leading-relaxed">
+                        Testes seus conhecimentos sobre <strong>Tabela Periódica, Ligações Químicas, Reações e Química Orgânica</strong>. Cada resposta possui uma explicação comentada completa!
+                    </p>
+                </div>
+
+                <!-- Campo Nome do Jogador -->
+                <div class="max-w-md mx-auto space-y-2">
+                    <label for="player-name" class="block text-xs font-mono font-semibold text-teal-400 uppercase tracking-wider">
+                        Digite seu Nome para o Ranking:
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                            <i data-lucide="user" class="w-5 h-5"></i>
+                        </div>
+                        <input type="text" id="player-name" placeholder="Ex: Marie Curie" maxlength="25"
+                            class="w-full pl-11 pr-4 py-3 bg-slate-950 border border-slate-700 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-white placeholder-slate-500 font-medium transition-all outline-none">
+                    </div>
+                </div>
+
+                <!-- Regras Rápidas -->
+                <div class="max-w-md mx-auto bg-slate-950/70 border border-slate-800 rounded-xl p-4 space-y-2">
+                    <h3 class="text-xs font-mono uppercase text-slate-400 font-semibold flex items-center gap-2">
+                        <i data-lucide="check-circle-2" class="w-4 h-4 text-purple-400"></i> Regras do Jogo:
+                    </h3>
+                    <ul class="text-xs text-slate-300 space-y-1.5 list-disc list-inside">
+                        <li>São <strong>10 questões obrigatórias</strong> de Química.</li>
+                        <li>Verde indica <strong class="text-emerald-400">Acerto</strong> e Vermelho indica <strong class="text-rose-400">Erro</strong>.</li>
+                        <li><strong>Explicação Comentada</strong> liberada logo após responder.</li>
+                        <li>Ranking zerado para você conquistar o topo!</li>
+                    </ul>
+                </div>
+
+                <!-- Botão Iniciar -->
+                <div class="max-w-md mx-auto">
+                    <button onclick="startQuiz()" class="w-full py-4 px-6 bg-gradient-to-r from-teal-500 via-cyan-600 to-purple-600 hover:opacity-95 text-white font-bold text-lg rounded-xl shadow-lg glow-teal transition-all flex items-center justify-center gap-2 group">
+                        <span>Iniciar Quiz de Química</span>
+                        <i data-lucide="play" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- TELA 2: Pergunta Ativa -->
+            <section id="screen-quiz" class="bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl hidden animate-fade-in space-y-6">
+                
+                <!-- Barra de Progresso e Indicadores -->
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center text-xs font-mono">
+                        <span class="text-slate-400 flex items-center gap-1.5">
+                            <i data-lucide="help-circle" class="w-4 h-4 text-teal-400"></i>
+                            Questão <strong id="question-number" class="text-white">1</strong> de <span id="total-questions-count">10</span>
+                        </span>
+                        <span id="quiz-category-tag" class="px-2.5 py-1 rounded-full bg-purple-950/80 border border-purple-500/30 text-purple-300 font-semibold">
+                            Química
+                        </span>
+                        <span class="text-slate-400 flex items-center gap-1">
+                            Pontos: <strong id="current-score" class="text-teal-400">0</strong>
+                        </span>
+                    </div>
+
+                    <!-- Barra Visual -->
+                    <div class="w-full bg-slate-950 h-2.5 rounded-full overflow-hidden p-0.5 border border-slate-800">
+                        <div id="progress-bar" class="bg-gradient-to-r from-teal-500 to-purple-500 h-full rounded-full transition-all duration-300 w-0"></div>
+                    </div>
+                </div>
+
+                <!-- Pergunta -->
+                <div>
+                    <h3 id="question-text" class="text-lg sm:text-xl font-bold text-white leading-relaxed">
+                        Carregando pergunta...
+                    </h3>
+                </div>
+
+                <!-- Lista de Alternativas -->
+                <div id="options-container" class="space-y-3">
+                    <!-- Opções geradas dinamicamente -->
+                </div>
+
+                <!-- Explicação Comentada (Obrigatória no requisito) -->
+                <div id="explanation-card" class="hidden p-5 rounded-xl border transition-all animate-fade-in">
+                    <div class="flex items-start gap-3">
+                        <div id="explanation-icon" class="p-2 rounded-lg mt-0.5"></div>
+                        <div class="space-y-1">
+                            <h4 id="explanation-title" class="font-bold text-sm uppercase tracking-wide">
+                                Explicação Comentada
+                            </h4>
+                            <p id="explanation-text" class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                                A explicação científica aparecerá aqui.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botão Próxima Questão -->
+                <div class="flex justify-end pt-2 border-t border-slate-800">
+                    <button id="next-btn" disabled onclick="nextQuestion()" class="px-6 py-3 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl border border-slate-700 transition-all flex items-center gap-2">
+                        <span>Próxima Pergunta</span>
+                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- TELA 3: Resultado Final -->
+            <section id="screen-result" class="bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl hidden animate-fade-in text-center space-y-6">
+                <div id="result-icon-box" class="inline-flex p-5 rounded-full bg-teal-950/50 border border-teal-500/30 text-teal-400">
+                    <i data-lucide="trophy" class="w-12 h-12"></i>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-white mb-1">Quiz Concluído!</h2>
+                    <p id="result-player-greeting" class="text-slate-400 text-sm font-medium">Parabéns pelo desempenho!</p>
+                </div>
+
+                <!-- Quadro de Estatísticas -->
+                <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-5 grid grid-cols-3 gap-3">
+                    <div class="space-y-1">
+                        <span class="text-xs text-slate-400 font-mono block">Acertos</span>
+                        <span id="res-correct" class="text-2xl font-black text-emerald-400">0</span>
+                    </div>
+                    <div class="space-y-1 border-x border-slate-800">
+                        <span class="text-xs text-slate-400 font-mono block">Erros</span>
+                        <span id="res-wrong" class="text-2xl font-black text-rose-400">0</span>
+                    </div>
+                    <div class="space-y-1">
+                        <span class="text-xs text-slate-400 font-mono block">Aproveitamento</span>
+                        <span id="res-percent" class="text-2xl font-black text-teal-400">0%</span>
+                    </div>
+                </div>
+
+                <div id="result-feedback-box" class="p-4 rounded-xl bg-purple-950/40 border border-purple-500/30 text-purple-200 text-xs sm:text-sm leading-relaxed">
+                    Mensagem de feedback...
+                </div>
+
+                <!-- Ações -->
+                <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                    <button onclick="restartQuiz()" class="flex-1 py-3 px-4 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-xl border border-slate-700 transition-all flex items-center justify-center gap-2 text-sm">
+                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                        <span>Tentar Novamente</span>
+                    </button>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- PAINEL LATERAL DE RANKING (Sempre visível em todas as telas) - Colunas 9 a 12 -->
+        <aside class="lg:col-span-4 w-full bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-2xl p-5 shadow-2xl space-y-4">
+            
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="trophy" class="w-5 h-5 text-amber-400"></i>
+                    <h3 class="font-bold text-base text-white">Ranking Top 10</h3>
+                </div>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400">Zerado</span>
+            </div>
+
+            <p class="text-xs text-slate-400 leading-relaxed">
+                Placar das 10 melhores pontuações salvas neste navegador:
+            </p>
+
+            <!-- Tabela de Ranking com Mínimo de 10 Posições -->
+            <div class="overflow-x-auto border border-slate-800/80 rounded-xl bg-slate-950/50">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-slate-950 text-slate-400 font-mono text-[10px] uppercase tracking-wider border-b border-slate-800">
+                        <tr>
+                            <th class="py-2.5 px-3 text-center">Pos</th>
+                            <th class="py-2.5 px-3">Jogador</th>
+                            <th class="py-2.5 px-3 text-right">Pts</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sidebar-ranking-tbody" class="divide-y divide-slate-800/50 font-medium">
+                        <!-- Gerado via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Botão para Limpar Ranking -->
+            <div class="pt-2 flex justify-between items-center">
+                <button onclick="clearRanking()" class="text-[11px] text-rose-400 hover:text-rose-300 flex items-center gap-1 transition-colors">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                    <span>Resetar Ranking</span>
+                </button>
+                <span class="text-[10px] text-slate-500 font-mono">10 Vagas Disponíveis</span>
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- MODAL DE ORIENTAÇÕES DO GITHUB PAGES -->
+    <div id="modal-github" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl animate-fade-in overflow-hidden">
+            
+            <div class="px-6 py-4 border-b border-slate-800 flex justify-between items-center bg-slate-950/50">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="github" class="w-5 h-5 text-cyan-400"></i>
+                    <h3 class="font-bold text-lg text-white">Como publicar no GitHub Pages</h3>
+                </div>
+                <button onclick="closeGitHubModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto flex-grow space-y-4 text-xs sm:text-sm text-slate-300">
+                <p>Siga estas etapas para publicar seu projeto online e obter o link do GitHub Pages para entregar o trabalho:</p>
+
+                <ol class="space-y-3 list-decimal list-inside font-medium text-slate-200">
+                    <li class="p-3 bg-slate-950 rounded-xl border border-slate-800">
+                        <strong class="text-teal-400">1. Salve o arquivo principal:</strong><br>
+                        <span class="text-slate-400 text-xs">Crie um arquivo chamado exatamente <code>index.html</code> no seu computador e cole todo o código fornecido.</span>
+                    </li>
+                    <li class="p-3 bg-slate-950 rounded-xl border border-slate-800">
+                        <strong class="text-teal-400">2. Crie um Repositório no GitHub:</strong><br>
+                        <span class="text-slate-400 text-xs">Acesse seu perfil do GitHub, clique em <strong>New Repository</strong>, dê um nome (ex: <code>quiz-quimica</code>) e certifique-se de marcar como <strong>Public</strong>.</span>
+                    </li>
+                    <li class="p-3 bg-slate-950 rounded-xl border border-slate-800">
+                        <strong class="text-teal-400">3. Faça Upload do `index.html`:</strong><br>
+                        <span class="text-slate-400 text-xs">Dentro do repositório criado, escolha a opção <strong>Upload files</strong>, envie o seu arquivo <code>index.html</code> e clique em <em>Commit changes</em>.</span>
+                    </li>
+                    <li class="p-3 bg-slate-950 rounded-xl border border-slate-800">
+                        <strong class="text-teal-400">4. Ative o GitHub Pages:</strong><br>
+                        <span class="text-slate-400 text-xs">Vá nas abas superiores em <strong>Settings</strong> > menu lateral <strong>Pages</strong>. Em <em>Branch</em>, mude de <code>None</code> para <code>main</code> (ou <code>master</code>) e clique em <strong>Save</strong>.</span>
+                    </li>
+                </ol>
+
+                <div class="p-3 bg-purple-950/40 border border-purple-500/30 rounded-xl text-xs text-purple-200">
+                    💡 Aguarde de 1 a 3 minutos e recarregue a página de Settings/Pages. O link público ficará disponível em formato: <code>https://seu-usuario.github.io/quiz-quimica/</code>
+                </div>
+            </div>
+
+            <div class="px-6 py-3 border-t border-slate-800 bg-slate-950/50 flex justify-end">
+                <button onclick="closeGitHubModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-semibold">
+                    Entendi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="border-t border-slate-800/80 bg-slate-950/60 py-4 text-center text-xs text-slate-500 font-mono">
+        <p>ChemLab Quiz &bull; Projeto Escolar / Acadêmico de Química &bull; Desenvolvido com HTML, CSS & JavaScript</p>
+    </footer>
+
+    <script>
+        // ==========================================
+        // 1. BANCO DE DADOS DE PERGUNTAS (QUÍMICA)
+        // Mínimo de 10 perguntas bem elaboradas
+        // ==========================================
+        const chemistryQuestions = [
+            {
+                category: "Química Geral",
+                question: "Qual partícula subatômica possui carga elétrica negativa e orbita ao redor do núcleo do átomo?",
+                options: ["Próton", "Nêutron", "Elétron", "Pósitron"],
+                correctIndex: 2, // Elétron
+                explanation: "Os elétrons são partículas de carga negativa que se movimentam na eletrosfera ao redor do núcleo atômico (onde ficam os prótons positivos e os nêutrons neutros)."
+            },
+            {
+                category: "Tabela Periódica",
+                question: "Qual destes elementos químicos é um Gás Nobre (família 18 ou 8A)?",
+                options: ["Sódio (Na)", "Hélio (He)", "Cloro (Cl)", "Ferro (Fe)"],
+                correctIndex: 1, // Hélio
+                explanation: "O Hélio (He) pertence à família dos Gases Nobres. Esses elementos caracterizam-se por apresentarem a camada de valência completa e baixa reatividade química sob condições normais."
+            },
+            {
+                category: "Ligações Químicas",
+                question: "Que tipo de ligação química ocorre através do compartilhamento de pares de elétrons entre ametais?",
+                options: ["Ligação Covalente", "Ligação Iônica", "Ligação Metálica", "Ponte de Hidrogênio"],
+                correctIndex: 0, // Covalente
+                explanation: "A ligação covalente (ou molecular) acontece quando átomos não-metálicos compartilham elétrons para atingirem a estabilidade (regra do octeto)."
+            },
+            {
+                category: "Química Geral",
+                question: "Uma solução que apresenta valor de pH igual a 2 é considerada:",
+                options: ["Neutra", "Fortemente Ácida", "Fortemente Básica", "Alcalina Moderada"],
+                correctIndex: 1, // Fortemente Ácida
+                explanation: "A escala de pH varia de 0 a 14. Quanto menor o número abaixo de 7, mais ácida é a solução. O pH 2 indica elevada concentração de íons H⁺ (como o suco gástrico)."
+            },
+            {
+                category: "Química Orgânica",
+                question: "Qual das alternativas abaixo representa o hidrocarboneto mais simples, composto por 1 átomo de carbono e 4 de hidrogênio (CH₄)?",
+                options: ["Etanol", "Propano", "Metano", "Acetileno"],
+                correctIndex: 2, // Metano
+                explanation: "O metano (CH₄) é o alcano mais simples que existe. É o principal componente do gás natural e do biogás produzido pela decomposição de matéria orgânica."
+            },
+            {
+                category: "Reações Químicas",
+                question: "Em uma reação de Combustão Completa de hidrocarbonetos, quais são os dois produtos obrigatoriamente gerados?",
+                options: [
+                    "Monóxido de Carbono e Água",
+                    "Dióxido de Carbono (CO₂) e Água (H₂O)",
+                    "Metano e Oxigênio",
+                    "Carbono puro e Nitrogênio"
+                ],
+                correctIndex: 1, // CO2 e H2O
+                explanation: "A combustão completa ocorre na presença abundante de oxigênio (comburente), queimando o combustível e liberando gás carbônico (CO₂), água (H₂O) e calor."
+            },
+            {
+                category: "Físico-Química",
+                question: "Como é chamada a transformação direta do estado Sólido para o estado Gasoso sem passar pela fase líquida?",
+                options: ["Condensação", "Fusão", "Sublimação", "Evaporação"],
+                correctIndex: 2, // Sublimação
+                explanation: "Sublimação é a mudança direta entre o estado sólido e gasoso. Um exemplo clássico no cotidiano é a naftalina ou o gelo seco (dióxido de carbono sólido)."
+            },
+            {
+                category: "Química Geral",
+                question: "Qual é o número total de átomos presentes em uma única molécula de Ácido Sulfúrico (H₂SO₄)?",
+                options: ["3 átomos", "7 átomos", "6 átomos", "4 átomos"],
+                correctIndex: 1, // 7 átomos
+                explanation: "A fórmula H₂SO₄ contém 2 átomos de Hidrogênio + 1 átomo de Enxofre + 4 átomos de Oxigênio, totalizando 7 átomos por molécula."
+            },
+            {
+                category: "Tabela Periódica",
+                question: "Qual é o elemento químico identificado pelo símbolo símbolo 'Fe' na Tabela Periódica?",
+                options: ["Flúor", "Fósforo", "Ferro", "Frâncio"],
+                correctIndex: 2, // Ferro
+                explanation: "O símbolo 'Fe' vem do nome em latim do elemento, *Ferrum*. É um metal de transição muito utilizado na produção do aço."
+            },
+            {
+                category: "Química Orgânica",
+                question: "Qual função orgânica é caracterizada pela presença do grupo funcional Hidroxila (-OH) ligado a um carbono saturado?",
+                options: ["Álcool", "Aldeído", "Cetona", "Ácido Carboxílico"],
+                correctIndex: 0, // Álcool
+                explanation: "A presença do grupo hidroxila (-OH) ligado a carbono sp³ caracteriza a função Álcool, como no etanol (CH₃-CH₂-OH)."
+            }
+        ];
+
+        // ==========================================
+        // 2. CHAVES DE ARMAZENAMENTO (LOCALSTORAGE)
+        // ==========================================
+        const RANKING_STORAGE_KEY = "chemlab_ranking_data_v2";
+        const ACCESS_STORAGE_KEY = "chemlab_access_counter_v2";
+
+        // Estado do Jogo
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let playerName = "";
+        let hasAnswered = false;
+
+        // ==========================================
+        // 3. INICIALIZAÇÃO DA PÁGINA
+        // ==========================================
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            
+            // Incrementa e exibe o contador de acessos
+            updateAccessCounter();
+
+            // Renderiza a barra lateral do ranking zerado/inicial
+            renderSidebarRanking();
+
+            // Evento para pressionar Enter no input
+            document.getElementById('player-name').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') startQuiz();
+            });
+        });
+
+        // Atualiza e incrementa o contador de acessos via localStorage
+        function updateAccessCounter() {
+            try {
+                let currentAccess = parseInt(localStorage.getItem(ACCESS_STORAGE_KEY) || "0", 10);
+                currentAccess += 1;
+                localStorage.setItem(ACCESS_STORAGE_KEY, currentAccess.toString());
+                document.getElementById('global-access-counter').innerText = currentAccess;
+            } catch (e) {
+                document.getElementById('global-access-counter').innerText = "1";
+            }
+        }
+
+        // ==========================================
+        // 4. LÓGICA DO QUIZ
+        // ==========================================
+        function startQuiz() {
+            const nameInput = document.getElementById('player-name').value.trim();
+            if (!nameInput) {
+                alert("Por favor, digite seu nome para registrar sua pontuação!");
+                return;
+            }
+
+            playerName = nameInput;
+            currentQuestionIndex = 0;
+            score = 0;
+            hasAnswered = false;
+
+            document.getElementById('screen-start').classList.add('hidden');
+            document.getElementById('screen-result').classList.add('hidden');
+            document.getElementById('screen-quiz').classList.remove('hidden');
+
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            hasAnswered = false;
+            const currentQ = chemistryQuestions[currentQuestionIndex];
+            const total = chemistryQuestions.length;
+
+            document.getElementById('question-number').innerText = currentQuestionIndex + 1;
+            document.getElementById('total-questions-count').innerText = total;
+            document.getElementById('quiz-category-tag').innerText = currentQ.category;
+            document.getElementById('current-score').innerText = score;
+
+            // Barra de Progresso
+            const progressPercent = (currentQuestionIndex / total) * 100;
+            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+
+            document.getElementById('question-text').innerText = currentQ.question;
+
+            // Reseta a explicação
+            document.getElementById('explanation-card').classList.add('hidden');
+            document.getElementById('next-btn').disabled = true;
+
+            // Renderiza opções
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            const letters = ['A', 'B', 'C', 'D'];
+
+            currentQ.options.forEach((optionText, index) => {
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left p-4 rounded-xl border border-slate-800 bg-slate-950/70 hover:bg-slate-800/80 transition-all flex items-center gap-3 text-sm font-medium text-slate-200 group`;
+                btn.onclick = () => selectOption(index);
+                btn.id = `opt-btn-${index}`;
+
+                btn.innerHTML = `
+                    <span class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-700 font-mono font-bold flex items-center justify-center text-xs text-teal-400 group-hover:border-teal-500 transition-colors">
+                        ${letters[index]}
+                    </span>
+                    <span class="flex-grow">${optionText}</span>
+                    <span class="status-icon"></span>
+                `;
+
+                optionsContainer.appendChild(btn);
+            });
+
+            lucide.createIcons();
+        }
+
+        function selectOption(selectedIndex) {
+            if (hasAnswered) return;
+            hasAnswered = true;
+
+            const currentQ = chemistryQuestions[currentQuestionIndex];
+            const isCorrect = selectedIndex === currentQ.correctIndex;
+
+            if (isCorrect) {
+                score++;
+                document.getElementById('current-score').innerText = score;
+            }
+
+            // Destaca os botões (Verde para acerto, Vermelho para erro)
+            currentQ.options.forEach((_, index) => {
+                const btn = document.getElementById(`opt-btn-${index}`);
+                btn.disabled = true;
+                btn.classList.remove('hover:bg-slate-800/80');
+
+                if (index === currentQ.correctIndex) {
+                    btn.classList.add('bg-emerald-950/80', 'border-emerald-500', 'text-emerald-200');
+                    btn.querySelector('.status-icon').innerHTML = `<i data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>`;
+                } else if (index === selectedIndex && !isCorrect) {
+                    btn.classList.add('bg-rose-950/80', 'border-rose-500', 'text-rose-200');
+                    btn.querySelector('.status-icon').innerHTML = `<i data-lucide="x-circle" class="w-5 h-5 text-rose-400"></i>`;
+                } else {
+                    btn.classList.add('opacity-40');
+                }
+            });
+
+            // Exibe a Explicação Comentada (Obrigatório)
+            const expCard = document.getElementById('explanation-card');
+            const expTitle = document.getElementById('explanation-title');
+            const expText = document.getElementById('explanation-text');
+            const expIcon = document.getElementById('explanation-icon');
+
+            expCard.classList.remove('hidden');
+
+            if (isCorrect) {
+                expCard.className = "p-5 rounded-xl border bg-emerald-950/30 border-emerald-500/40 animate-fade-in";
+                expTitle.className = "font-bold text-sm uppercase tracking-wide text-emerald-400";
+                expTitle.innerText = "Resposta Correta!";
+                expIcon.className = "p-2 rounded-lg bg-emerald-900/50 text-emerald-400";
+                expIcon.innerHTML = `<i data-lucide="check" class="w-5 h-5"></i>`;
+            } else {
+                expCard.className = "p-5 rounded-xl border bg-rose-950/30 border-rose-500/40 animate-fade-in";
+                expTitle.className = "font-bold text-sm uppercase tracking-wide text-rose-400";
+                expTitle.innerText = "Resposta Incorreta";
+                expIcon.className = "p-2 rounded-lg bg-rose-900/50 text-rose-400";
+                expIcon.innerHTML = `<i data-lucide="alert-triangle" class="w-5 h-5"></i>`;
+            }
+
+            expText.innerText = currentQ.explanation;
+            document.getElementById('next-btn').disabled = false;
+
+            lucide.createIcons();
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < chemistryQuestions.length) {
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            document.getElementById('screen-quiz').classList.add('hidden');
+            document.getElementById('screen-result').classList.remove('hidden');
+
+            const total = chemistryQuestions.length;
+            const wrong = total - score;
+            const percent = Math.round((score / total) * 100);
+
+            document.getElementById('result-player-greeting').innerText = `Excelente, ${playerName}!`;
+            document.getElementById('res-correct').innerText = score;
+            document.getElementById('res-wrong').innerText = wrong;
+            document.getElementById('res-percent').innerText = `${percent}%`;
+
+            const feedbackBox = document.getElementById('result-feedback-box');
+            if (percent === 100) {
+                feedbackBox.innerHTML = "🏆 <strong>Gênio da Química!</strong> Você acertou todas as questões do teste!";
+            } else if (percent >= 70) {
+                feedbackBox.innerHTML = "👏 <strong>Ótimo resultado!</strong> Seu conhecimento em Química está afiado.";
+            } else if (percent >= 50) {
+                feedbackBox.innerHTML = "👍 <strong>Bom trabalho!</strong> Revise as explicações das questões para evoluir ainda mais.";
+            } else {
+                feedbackBox.innerHTML = "📚 <strong>Continue estudando!</strong> Leia as explicações e tente novamente para subir no ranking!";
+            }
+
+            // Salva no Ranking e atualiza o painel
+            saveToRanking(playerName, score, total);
+            renderSidebarRanking();
+        }
+
+        function restartQuiz() {
+            document.getElementById('screen-result').classList.add('hidden');
+            document.getElementById('screen-start').classList.remove('hidden');
+        }
+
+        // ==========================================
+        // 5. LÓGICA DO RANKING (10 POSIÇÕES)
+        // ==========================================
+        function getRankingData() {
+            try {
+                const stored = localStorage.getItem(RANKING_STORAGE_KEY);
+                return stored ? JSON.parse(stored) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveToRanking(name, scoreAchieved, total) {
+            let ranking = getRankingData();
+
+            const entry = {
+                id: Date.now(),
+                name: name,
+                score: scoreAchieved,
+                total: total
+            };
+
+            ranking.push(entry);
+
+            // Ordena da maior para a menor pontuação
+            ranking.sort((a, b) => b.score - a.score || b.id - a.id);
+
+            // Mantém no máximo 10 posições
+            ranking = ranking.slice(0, 10);
+
+            try {
+                localStorage.setItem(RANKING_STORAGE_KEY, JSON.stringify(ranking));
+            } catch (e) {
+                console.error("Erro ao salvar ranking", e);
+            }
+        }
+
+        function renderSidebarRanking() {
+            const ranking = getRankingData();
+            const tbody = document.getElementById('sidebar-ranking-tbody');
+            tbody.innerHTML = '';
+
+            // Preenche até 10 posições ativas
+            for (let i = 0; i < 10; i++) {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-slate-800/40 hover:bg-slate-800/20 transition-colors";
+
+                const player = ranking[i];
+
+                if (player) {
+                    let posBadge = `<span class="font-mono font-bold text-slate-400">#${i + 1}</span>`;
+                    if (i === 0) posBadge = `<span class="text-amber-400 font-bold">🥇 #1</span>`;
+                    else if (i === 1) posBadge = `<span class="text-slate-300 font-bold">🥈 #2</span>`;
+                    else if (i === 2) posBadge = `<span class="text-amber-600 font-bold">🥉 #3</span>`;
+
+                    tr.innerHTML = `
+                        <td class="py-2 px-3 text-center">${posBadge}</td>
+                        <td class="py-2 px-3 font-semibold text-white truncate max-w-[120px]">${escapeHtml(player.name)}</td>
+                        <td class="py-2 px-3 text-right font-mono font-bold text-teal-400">${player.score}/${player.total}</td>
+                    `;
+                } else {
+                    // Posição Vazia (Garante as 10 posições visíveis)
+                    tr.innerHTML = `
+                        <td class="py-2 px-3 text-center text-slate-600 font-mono">#${i + 1}</td>
+                        <td class="py-2 px-3 text-slate-600 italic">Disponível</td>
+                        <td class="py-2 px-3 text-right text-slate-600 font-mono">-</td>
+                    `;
+                }
+
+                tbody.appendChild(tr);
+            }
+        }
+
+        function clearRanking() {
+            if (confirm("Deseja realmente zerar o Ranking de jogadores?")) {
+                localStorage.removeItem(RANKING_STORAGE_KEY);
+                renderSidebarRanking();
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.innerText = text;
+            return div.innerHTML;
+        }
+
+        // ==========================================
+        // 6. MODAL DO GITHUB
+        // ==========================================
+        function openGitHubModal() {
+            document.getElementById('modal-github').classList.remove('hidden');
+        }
+
+        function closeGitHubModal() {
+            document.getElementById('modal-github').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
